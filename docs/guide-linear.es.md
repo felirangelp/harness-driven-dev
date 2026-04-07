@@ -55,11 +55,13 @@ Los proyectos agrupan issues relacionados. Para el demo:
 La API key permite que los scripts del harness interactúen con Linear. **Necesitas esto antes de crear issues vía CLI o Claude Code.**
 
 1. Click en tu **avatar** (esquina inferior izquierda) → **Settings**
-2. Ve a **API** en la barra lateral izquierda
-3. Bajo **Personal API keys**, click en **Create key**
-4. Dale un nombre: `harness-driven-dev`
-5. Click en **Create**
-6. **Copia la key inmediatamente** — empieza con `lin_api_` y no se mostrará de nuevo
+2. En la barra lateral, ve a **Security & access** (bajo la configuración de tu cuenta)
+   - Alternativamente: ve a **Settings → API** y click en el link **"security & access settings"** en la sección Member API keys
+3. Baja hasta **Personal API keys**
+4. Click en **Create key**
+5. Dale un nombre: `harness-driven-dev`
+6. Click en **Create**
+7. **Copia la key inmediatamente** — empieza con `lin_api_` y no se mostrará de nuevo
 
 ## 6. Guardar la API Key
 
