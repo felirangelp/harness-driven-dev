@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HDD — Slides</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <style>
+    :root {
+      --r-background-color: #0d1117;
+      --r-main-color: #c9d1d9;
+      --r-heading-color: #f0f6fc;
+      --r-link-color: #58a6ff;
+    }
+    .reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: -0.02em; }
+    .reveal h1 { font-size: 2.4em; }
+    .reveal h2 { font-size: 1.6em; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.9em; }
+    .reveal code { color: #58a6ff; }
+    .reveal pre { width: 100%; }
+    .reveal pre code { font-size: 0.75em; line-height: 1.6; }
+
+    .reveal table { margin: 0 auto; font-size: 0.7em; border-collapse: collapse; }
+    .reveal table th, .reveal table td { padding: 0.5em 1em; border: 1px solid #21262d; }
+    .reveal table th { background: #161b22; }
+
+    .green { color: #238636; }
+    .red { color: #f85149; }
+    .yellow { color: #d29922; }
+    .blue { color: #58a6ff; }
+    .purple { color: #8957e5; }
+    .muted { color: #8b949e; }
+
+    .layer-box {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.6em 1em;
+      margin: 0.4em 0;
+      text-align: left;
+      font-size: 0.75em;
+    }
+
+    .layer-box strong { display: inline-block; width: 2em; }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin: 0.5em 0;
+      font-size: 0.8em;
+    }
+    .flow-cmd { color: #58a6ff; font-family: monospace; white-space: nowrap; }
+    .flow-arrow { color: #8b949e; }
+    .flow-desc { color: #c9d1d9; text-align: left; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ── Slide 1: Title ── -->
+<section>
+  <h1>Harness-Driven<br><span class="blue">Development</span></h1>
+  <p class="subtitle">Orchestrating Linear + GitHub with AI Agents</p>
+  <p class="muted" style="font-size:0.6em; margin-top:2em;">
+    Navigate: arrow keys &middot; <a href="../">Back to site</a>
+  </p>
+</section>
+
+<!-- ── Slide 2: The Problem ── -->
+<section>
+  <h2>The Problem</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="green">What we KNOW</th>
+        <th class="yellow">What we DO</th>
+        <th class="red">What gets ENFORCED</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Commit conventions</td><td>Sometimes</td><td>Almost never</td></tr>
+      <tr><td>No secrets in code</td><td>After the incident</td><td>Sporadically</td></tr>
+      <tr><td>Tests before merge</td><td>On new projects</td><td>Until there's pressure</td></tr>
+      <tr><td>Traceable issues</td><td>On "important" PRs</td><td>When there's an audit</td></tr>
+      <tr><td>Definition of Done</td><td>In retros</td><td>Never mechanically</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── Slide 3: The Pitch ── -->
+<section>
+  <h2>The Pitch</h2>
+  <blockquote style="border-left:4px solid #58a6ff; padding-left:1em; font-style:italic; font-size:1.1em;">
+    "The agent doesn't just write code &mdash; it <span class="blue">self-enforces</span> the rules your team already knows but can't consistently follow."
+  </blockquote>
+</section>
+
+<!-- ── Slide 4: How It Works ── -->
+<section>
+  <h2>3 Commands, 15+ Actions</h2>
+  <div class="flow-row">
+    <span class="flow-cmd">/start-issue DEMO-1</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-desc">Reads Linear, creates branch, moves to In Progress</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-cmd">"implement dark mode"</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-desc">Writes code, tests, validates, push + PR</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-cmd">/close-issue DEMO-1</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-desc">Runs 3 gates, posts evidence, moves to Done</span>
+  </div>
+</section>
+
+<!-- ── Slide 5: 4 Layers ── -->
+<section>
+  <h2>4 Layers of Enforcement</h2>
+  <div class="layer-box" style="border-left:4px solid #238636;">
+    <strong class="green">1</strong> <strong>Pre-commit</strong> <span class="muted">&mdash; gitleaks + issue-ref hook &mdash; "Won't let you commit bad code"</span>
+  </div>
+  <div class="layer-box" style="border-left:4px solid #d29922;">
+    <strong class="yellow">2</strong> <strong>CI</strong> <span class="muted">&mdash; Tests + gitleaks &mdash; "If it fails, auto-creates bug in Linear"</span>
+  </div>
+  <div class="layer-box" style="border-left:4px solid #58a6ff;">
+    <strong class="blue">3</strong> <strong>Harness</strong> <span class="muted">&mdash; close_issue.sh with 3 gates &mdash; "Won't let you close without evidence"</span>
+  </div>
+  <div class="layer-box" style="border-left:4px solid #8957e5;">
+    <strong class="purple">4</strong> <strong>Webhook</strong> <span class="muted">&mdash; PR &rarr; In Progress, merge &rarr; Done &mdash; "Status syncs automatically"</span>
+  </div>
+</section>
+
+<!-- ── Slide 6: The System ── -->
+<section>
+  <h2>System Components</h2>
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Who uses it</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="green">Skills</td><td>YOU invoke them</td><td>Executes recipes that call the harness</td></tr>
+      <tr><td class="yellow">Harness</td><td>Skills or hooks</td><td>Verifies rules, runs validations</td></tr>
+      <tr><td class="red">Hooks</td><td>Activate AUTOMATICALLY</td><td>Execute harness scripts on git events</td></tr>
+      <tr><td class="purple">CLAUDE.md</td><td>Agent reads it</td><td>Defines the rules everything respects</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── Slide 7: The Analogy ── -->
+<section>
+  <h2>The Restaurant Analogy</h2>
+  <div style="text-align:left; font-size:0.85em; max-width:600px; margin:0 auto;">
+    <p><strong class="purple">CLAUDE.md</strong> = The operations manual</p>
+    <p><strong class="green">Skills</strong> = The menu recipes</p>
+    <p><strong class="yellow">Harness</strong> = Quality control</p>
+    <p><strong class="red">Hooks</strong> = Automatic sensors (oven alarm, timer)</p>
+  </div>
+  <p class="muted" style="margin-top:1.5em; font-size:0.75em;">
+    The chef (agent) follows the recipes, quality control verifies,<br>
+    and the sensors fire on their own.
+  </p>
+</section>
+
+<!-- ── Slide 8: Secret Blocked ── -->
+<section>
+  <h2>The <span class="red">"Wow"</span> Moment</h2>
+  <pre><code>
+  # Moment 1: The mistake
+  $ git commit -m "add dark mode"
+  <span class="red">BLOCKED</span> — gitleaks detected a secret
+  → Never reached GitHub
+
+  # Moment 2: The fix
+  $ mv API_KEY → .env
+  $ git commit -m "add dark mode"
+  <span class="green">PASSED</span>
+
+  # Moment 3: Second layer
+  $ --no-verify → GitHub Actions → gitleaks
+  <span class="red">PR BLOCKED</span> + bug auto-created in Linear
+  </code></pre>
+</section>
+
+<!-- ── Slide 9: Gate System ── -->
+<section>
+  <h2>Gate System</h2>
+  <pre><code>
+  /close-issue DEMO-1
+
+  Gate 1/3 — Tests passing?    → npm test       → <span class="green">PASS</span>
+  Gate 2/3 — CI green?         → gh run list    → <span class="green">PASS</span>
+  Gate 3/3 — Criteria checked? → Linear API     → <span class="green">PASS</span>
+
+  ════════════════════════════════════════
+  <span class="green">ALL GATES PASSED (3/3)</span>
+  Evidence posted. Issue moved to Done.
+  </code></pre>
+</section>
+
+<!-- ── Slide 10: Before/After ── -->
+<section>
+  <h2>Before vs After</h2>
+  <div style="display:flex; gap:2em; justify-content:center; font-size:0.8em;">
+    <div style="text-align:left;">
+      <h3 class="red">Without Harness</h3>
+      <p>10 manual steps</p>
+      <p>0 verifications</p>
+      <p>0 evidence</p>
+      <p>0 audit trail</p>
+    </div>
+    <div style="text-align:left;">
+      <h3 class="green">With Harness</h3>
+      <p>3 commands</p>
+      <p>5+ automatic verifications</p>
+      <p>Evidence on every close</p>
+      <p>Full audit trail</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Slide 11: Key Lesson ── -->
+<section>
+  <h2>Key Lesson</h2>
+  <blockquote style="border-left:4px solid #d29922; padding-left:1em; font-style:italic;">
+    "Automate with APIs, not magic abstractions."
+  </blockquote>
+  <p class="muted" style="margin-top:1em; font-size:0.8em;">
+    Custom GraphQL client: ~170 lines, full control.<br>
+    Entire harness: &lt;500 lines of code.
+  </p>
+</section>
+
+<!-- ── Slide 12: Call to Action ── -->
+<section>
+  <h2>Get Started</h2>
+  <p style="font-size:1.2em;">Fork it. Star it. Adapt it.</p>
+  <p style="margin-top:1.5em;">
+    <a href="https://github.com/felirangelp/harness-driven-dev" style="font-size:1.1em;">
+      github.com/felirangelp/harness-driven-dev
+    </a>
+  </p>
+  <p class="muted" style="margin-top:2em; font-size:0.7em;">
+    Setup: ~2 hours &middot; Harness: &lt;500 lines &middot; ROI: immediate
+  </p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    transition: 'slide',
+    width: 1200,
+    height: 700,
+    margin: 0.1,
+  });
+</script>
+</body>
+</html>

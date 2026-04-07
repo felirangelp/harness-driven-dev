@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harness-Driven Development</title>
+  <meta name="description" content="Software best practices don't fail because teams don't know them — they fail because nobody enforces them. An AI agent with a harness closes that gap.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --border: #21262d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --heading: #f0f6fc;
+      --accent: #58a6ff;
+      --green: #238636;
+      --red: #f85149;
+      --yellow: #d29922;
+      --purple: #8957e5;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero .tagline {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+      border: 1px solid var(--green);
+    }
+
+    .btn-primary:hover { background: #2ea043; text-decoration: none; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { border-color: var(--text-muted); text-decoration: none; }
+
+    /* ── Sections ── */
+    section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    section h2 {
+      font-size: 1.8rem;
+      color: var(--heading);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    section .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Problem Table ── */
+    .problem-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .problem-table th, .problem-table td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .problem-table th {
+      background: var(--bg-card);
+      color: var(--heading);
+      font-weight: 600;
+    }
+
+    .problem-table tr:nth-child(even) { background: var(--bg-card); }
+
+    .col-know { color: var(--green); }
+    .col-do { color: var(--yellow); }
+    .col-enforce { color: var(--red); }
+
+    /* ── Cards Grid ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .card h3 {
+      color: var(--heading);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Layers ── */
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .layer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-left: 4px solid;
+    }
+
+    .layer:nth-child(1) { border-left-color: var(--green); }
+    .layer:nth-child(2) { border-left-color: var(--yellow); }
+    .layer:nth-child(3) { border-left-color: var(--accent); }
+    .layer:nth-child(4) { border-left-color: var(--purple); }
+
+    .layer-num {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .layer-content h3 { color: var(--heading); font-size: 1rem; margin-bottom: 0.25rem; }
+    .layer-content p { color: var(--text-muted); font-size: 0.875rem; }
+
+    /* ── Flow ── */
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 2fr;
+      gap: 0.5rem 1.5rem;
+      align-items: center;
+    }
+
+    .flow-you {
+      text-align: right;
+      font-family: monospace;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .flow-arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+    .flow-system {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .flow-divider {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      margin: 0.5rem 0;
+    }
+
+    /* ── Code Block ── */
+    .code-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      line-height: 1.8;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .pass { color: var(--green); }
+    .code-block .fail { color: var(--red); }
+    .code-block .cmd { color: var(--accent); }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .stat-num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .flow { grid-template-columns: 1fr; gap: 0.25rem; }
+      .flow-you { text-align: left; }
+      .flow-arrow { display: none; }
+    }
+
+    /* ── Lang toggle ── */
+    .lang-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <strong>EN</strong> · <a href="#" onclick="toggleLang(); return false;">ES</a>
+</div>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <h1>Harness-Driven <span>Development</span></h1>
+  <p class="tagline" data-en="Software best practices don't fail because teams don't know them &mdash; they fail because nobody enforces them." data-es="Las buenas pr&aacute;cticas de software no fallan por falta de conocimiento &mdash; fallan por falta de enforcement.">
+    Software best practices don't fail because teams don't know them &mdash; they fail because nobody enforces them.
+  </p>
+  <div class="hero-buttons">
+    <a href="https://github.com/felirangelp/harness-driven-dev" class="btn btn-primary">
+      View on GitHub
+    </a>
+    <a href="slides/" class="btn btn-secondary">
+      View Slides
+    </a>
+  </div>
+</div>
+
+<!-- ── The Problem ── -->
+<section>
+  <h2 data-en="The Problem" data-es="El Problema">The Problem</h2>
+  <p class="subtitle" data-en="The gap between knowing and doing is not a knowledge problem &mdash; it's an enforcement problem." data-es="El gap entre saber y hacer no es un problema de conocimiento &mdash; es un problema de enforcement.">
+    The gap between knowing and doing is not a knowledge problem &mdash; it's an enforcement problem.
+  </p>
+  <table class="problem-table">
+    <thead>
+      <tr>
+        <th class="col-know" data-en="What we KNOW" data-es="Lo que SABEMOS">What we KNOW</th>
+        <th class="col-do" data-en="What we DO" data-es="Lo que HACEMOS">What we DO</th>
+        <th class="col-enforce" data-en="What gets ENFORCED" data-es="Lo que se CUMPLE">What gets ENFORCED</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Commit conventions</td>
+        <td data-en="Sometimes" data-es="A veces">Sometimes</td>
+        <td data-en="Almost never" data-es="Casi nunca">Almost never</td>
+      </tr>
+      <tr>
+        <td>No secrets in code</td>
+        <td data-en="After the incident" data-es="Despu&eacute;s del incidente">After the incident</td>
+        <td data-en="Sporadically" data-es="Espor&aacute;dicamente">Sporadically</td>
+      </tr>
+      <tr>
+        <td>Tests before merge</td>
+        <td data-en="On new projects" data-es="En proyectos nuevos">On new projects</td>
+        <td data-en="Until there's pressure" data-es="Hasta que hay presi&oacute;n">Until there's pressure</td>
+      </tr>
+      <tr>
+        <td>Traceable issues</td>
+        <td data-en='On "important" PRs' data-es='En PRs "importantes"'>On "important" PRs</td>
+        <td data-en="When there's an audit" data-es="Cuando hay auditor&iacute;a">When there's an audit</td>
+      </tr>
+      <tr>
+        <td>Definition of Done</td>
+        <td data-en="In retros" data-es="En retros">In retros</td>
+        <td data-en="Never mechanically" data-es="Nunca mec&aacute;nicamente">Never mechanically</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── How It Works ── -->
+<section>
+  <h2 data-en="How It Works" data-es="C&oacute;mo Funciona">How It Works</h2>
+  <p class="subtitle" data-en="3 commands. 15+ automated actions. Full audit trail." data-es="3 comandos. 15+ acciones autom&aacute;ticas. Audit trail completo.">
+    3 commands. 15+ automated actions. Full audit trail.
+  </p>
+  <div class="flow">
+    <div class="flow-you">/start-issue DEMO-1</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-system" data-en="Reads Linear, creates branch, moves to In Progress" data-es="Lee Linear, crea branch, mueve a In Progress">Reads Linear, creates branch, moves to In Progress</div>
+    <div class="flow-divider"></div>
+    <div class="flow-you">"implement dark mode"</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-system" data-en="Writes code, runs tests, validates secrets + refs, push + PR" data-es="Escribe c&oacute;digo, corre tests, valida secrets + refs, push + PR">Writes code, runs tests, validates secrets + refs, push + PR</div>
+    <div class="flow-divider"></div>
+    <div class="flow-you">/close-issue DEMO-1</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-system" data-en="Runs 3 gates, posts evidence, moves to Done" data-es="Corre 3 gates, posta evidencia, mueve a Done">Runs 3 gates, posts evidence, moves to Done</div>
+  </div>
+</section>
+
+<!-- ── 4 Layers ── -->
+<section>
+  <h2 data-en="4 Layers of Enforcement" data-es="4 Capas de Enforcement">4 Layers of Enforcement</h2>
+  <div class="layers">
+    <div class="layer">
+      <div class="layer-num">1</div>
+      <div class="layer-content">
+        <h3 data-en="Pre-commit (local)" data-es="Pre-commit (local)">Pre-commit (local)</h3>
+        <p data-en="gitleaks + issue-ref hook. Won't let you commit bad code." data-es="gitleaks + issue-ref hook. No te deja commitear mal.">gitleaks + issue-ref hook. Won't let you commit bad code.</p>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">2</div>
+      <div class="layer-content">
+        <h3 data-en="CI (GitHub Actions)" data-es="CI (GitHub Actions)">CI (GitHub Actions)</h3>
+        <p data-en="Tests + gitleaks. If it fails, auto-creates bug in Linear." data-es="Tests + gitleaks. Si falla, auto-crea bug en Linear.">Tests + gitleaks. If it fails, auto-creates bug in Linear.</p>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">3</div>
+      <div class="layer-content">
+        <h3 data-en="Harness (AI agent)" data-es="Harness (agente IA)">Harness (AI agent)</h3>
+        <p data-en="close_issue.sh with 3 gates. Won't let you close without evidence." data-es="close_issue.sh con 3 gates. No te deja cerrar sin evidencia.">close_issue.sh with 3 gates. Won't let you close without evidence.</p>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">4</div>
+      <div class="layer-content">
+        <h3 data-en="Webhook (GitHub &rarr; Linear)" data-es="Webhook (GitHub &rarr; Linear)">Webhook (GitHub &rarr; Linear)</h3>
+        <p data-en="PR &rarr; In Progress, merge &rarr; Done. Status syncs automatically." data-es="PR &rarr; In Progress, merge &rarr; Done. El estado se sincroniza solo.">PR &rarr; In Progress, merge &rarr; Done. Status syncs automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── The Wow Moment ── -->
+<section>
+  <h2 data-en='The "Wow Moment"' data-es='El "Momento Wow"'>The "Wow Moment"</h2>
+  <p class="subtitle" data-en="A secret blocked in real time &mdash; it never reaches GitHub." data-es="Un secret bloqueado en tiempo real &mdash; nunca llega a GitHub.">
+    A secret blocked in real time &mdash; it never reaches GitHub.
+  </p>
+  <div class="code-block">
+    <span class="comment" data-en="# Moment 1: The mistake we've all made" data-es="# Momento 1: El error que todos hemos cometido"># Moment 1: The mistake we've all made</span><br>
+    <span class="cmd">git commit</span> -m "add dark mode"<br>
+    <span class="fail">BLOCKED</span> <span class="comment" data-en="— gitleaks detected a secret" data-es="— gitleaks detect&oacute; un secret">&mdash; gitleaks detected a secret</span><br><br>
+
+    <span class="comment" data-en="# Moment 2: The fix" data-es="# Momento 2: La correcci&oacute;n"># Moment 2: The fix</span><br>
+    <span class="cmd">mv</span> API_KEY &rarr; .env<br>
+    <span class="cmd">git commit</span> -m "add dark mode"<br>
+    <span class="pass">PASSED</span><br><br>
+
+    <span class="comment" data-en="# Moment 3: Second layer (if --no-verify)" data-es="# Momento 3: Segunda capa (si --no-verify)"># Moment 3: Second layer (if --no-verify)</span><br>
+    <span class="cmd">GitHub Actions</span> &rarr; gitleaks<br>
+    <span class="fail">PR BLOCKED</span> + <span class="cmd" data-en="bug auto-created in Linear" data-es="bug auto-creado en Linear">bug auto-created in Linear</span>
+  </div>
+</section>
+
+<!-- ── Components ── -->
+<section>
+  <h2 data-en="System Components" data-es="Componentes del Sistema">System Components</h2>
+  <div class="cards">
+    <div class="card">
+      <h3><span class="card-icon" style="background:var(--green);color:#fff;">S</span> Skills</h3>
+      <p data-en="Intelligent commands the agent executes: /start-issue, /close-issue, /status. Each one orchestrates multiple harness actions." data-es="Comandos inteligentes que el agente ejecuta: /start-issue, /close-issue, /status. Cada uno orquesta m&uacute;ltiples acciones del harness.">Intelligent commands the agent executes: /start-issue, /close-issue, /status. Each one orchestrates multiple harness actions.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon" style="background:var(--yellow);color:#0d1117;">H</span> Harness</h3>
+      <p data-en="Validation scripts that enforce rules: linear_client.py, close_issue.sh, check_issue_ref.sh. ~415 lines total." data-es="Scripts de validaci&oacute;n que enforcean reglas: linear_client.py, close_issue.sh, check_issue_ref.sh. ~415 l&iacute;neas en total.">Validation scripts that enforce rules: linear_client.py, close_issue.sh, check_issue_ref.sh. ~415 lines total.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon" style="background:var(--red);color:#fff;">T</span> Hooks</h3>
+      <p data-en="Automatic triggers that fire on git events. Pre-commit scans for secrets. Commit-msg validates issue references." data-es="Triggers autom&aacute;ticos que se disparan en eventos de git. Pre-commit escanea secrets. Commit-msg valida referencias a issues.">Automatic triggers that fire on git events. Pre-commit scans for secrets. Commit-msg validates issue references.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon" style="background:var(--purple);color:#fff;">R</span> CLAUDE.md</h3>
+      <p data-en="The agent's rulebook. Defines available skills, harness rules, commit format, and what's forbidden." data-es="El libro de reglas del agente. Define skills disponibles, reglas del harness, formato de commits, y lo que est&aacute; prohibido.">The agent's rulebook. Defines available skills, harness rules, commit format, and what's forbidden.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<section>
+  <h2 data-en="By the Numbers" data-es="En N&uacute;meros">By the Numbers</h2>
+  <div class="stats">
+    <div>
+      <div class="stat-num">3</div>
+      <div class="stat-label" data-en="commands to run" data-es="comandos a ejecutar">commands to run</div>
+    </div>
+    <div>
+      <div class="stat-num">15+</div>
+      <div class="stat-label" data-en="automated actions" data-es="acciones autom&aacute;ticas">automated actions</div>
+    </div>
+    <div>
+      <div class="stat-num">4</div>
+      <div class="stat-label" data-en="enforcement layers" data-es="capas de enforcement">enforcement layers</div>
+    </div>
+    <div>
+      <div class="stat-num">&lt;500</div>
+      <div class="stat-label" data-en="lines of harness code" data-es="l&iacute;neas de c&oacute;digo del harness">lines of harness code</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section style="text-align:center;">
+  <h2 data-en="Get Started" data-es="Empieza Ya">Get Started</h2>
+  <p class="subtitle" data-en="Fork the repo. Star it. Adapt it to your team." data-es="Fork el repo. Dale star. Ad&aacute;ptalo a tu equipo.">
+    Fork the repo. Star it. Adapt it to your team.
+  </p>
+  <div class="hero-buttons">
+    <a href="https://github.com/felirangelp/harness-driven-dev" class="btn btn-primary">
+      GitHub Repository
+    </a>
+    <a href="https://github.com/felirangelp/harness-driven-dev/blob/main/docs/setup-guide.md" class="btn btn-secondary" data-en="Setup Guide" data-es="Gu&iacute;a de Setup">
+      Setup Guide
+    </a>
+    <a href="https://github.com/felirangelp/harness-driven-dev/blob/main/docs/architecture.md" class="btn btn-secondary" data-en="Architecture" data-es="Arquitectura">
+      Architecture
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Harness-Driven Development &mdash;
+    <a href="https://github.com/felirangelp/harness-driven-dev">GitHub</a> &middot;
+    <a href="https://github.com/felirangelp/harness-driven-dev/blob/main/LICENSE">MIT License</a>
+  </p>
+</footer>
+
+<script>
+  let currentLang = 'en';
+
+  function toggleLang() {
+    currentLang = currentLang === 'en' ? 'es' : 'en';
+    const otherLang = currentLang === 'en' ? 'es' : 'en';
+
+    document.querySelectorAll('[data-' + currentLang + ']').forEach(function(el) {
+      if (el.tagName === 'A' && el.dataset[currentLang]) {
+        el.textContent = el.dataset[currentLang];
+      } else if (el.dataset[currentLang]) {
+        el.innerHTML = el.dataset[currentLang];
+      }
+    });
+
+    var toggle = document.querySelector('.lang-toggle');
+    if (currentLang === 'en') {
+      toggle.innerHTML = '<strong>EN</strong> · <a href="#" onclick="toggleLang(); return false;">ES</a>';
+    } else {
+      toggle.innerHTML = '<a href="#" onclick="toggleLang(); return false;">EN</a> · <strong>ES</strong>';
+    }
+  }
+</script>
+
+</body>
+</html>

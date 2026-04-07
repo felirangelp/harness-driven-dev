@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HDD Task Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Task Board</h1>
+    <div class="header-actions">
+      <input type="text" id="new-task-input" placeholder="New task..." aria-label="New task title">
+      <button id="add-task-btn">Add Task</button>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="column" data-status="todo">
+      <h2>To Do <span class="count" id="count-todo">0</span></h2>
+      <div class="task-list" id="list-todo"></div>
+    </section>
+
+    <section class="column" data-status="in-progress">
+      <h2>In Progress <span class="count" id="count-in-progress">0</span></h2>
+      <div class="task-list" id="list-in-progress"></div>
+    </section>
+
+    <section class="column" data-status="done">
+      <h2>Done <span class="count" id="count-done">0</span></h2>
+      <div class="task-list" id="list-done"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

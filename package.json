@@ -1,0 +1,12 @@
+{
+  "name": "harness-driven-dev",
+  "version": "1.0.0",
+  "description": "Harness-Driven Development — Demo Task Board",
+  "private": true,
+  "scripts": {
+    "test": "node tests/test_app.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

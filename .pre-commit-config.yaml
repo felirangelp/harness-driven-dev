@@ -1,0 +1,19 @@
+# Pre-commit hooks for Harness-Driven Development
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Gate: No secrets in code
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  # Gate: Every commit must reference a Linear issue
+  - repo: local
+    hooks:
+      - id: check-issue-ref
+        name: Check issue reference (Refs DEMO-XXX)
+        entry: bash scripts/check_issue_ref.sh
+        language: script
+        stages: [commit-msg]

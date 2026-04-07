@@ -1,0 +1,25 @@
+name: Linear Bridge
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  bridge:
+    name: CI Failure → Linear Bug
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create bug in Linear
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          GITHUB_RUN_ID: ${{ github.event.workflow_run.id }}
+          GITHUB_HEAD_REF: ${{ github.event.workflow_run.head_branch }}
+        run: python scripts/ci_failure_bridge.py "$GITHUB_RUN_ID"

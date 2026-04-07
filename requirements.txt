@@ -1,0 +1,3 @@
+# Harness scripts dependencies
+# linear_client.py uses only stdlib (urllib, json, os) — no extras needed
+# Add here if future scripts require packages
