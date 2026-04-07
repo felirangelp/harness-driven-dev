@@ -20,7 +20,7 @@ The team is the container for all your issues. The team key becomes the prefix f
    - **Description**: optional
 4. Click **Create team**
 
-> **Important**: The team key (`DEMO`) must match what the harness scripts expect. If you use a different key, update `scripts/linear_client.py` line 131 where `team_key="DEMO"` is set.
+> **Important**: The team key determines your issue prefix. Throughout this guide, `DEMO` is used as an example — your team key can be anything (e.g., `HAR`, `EXP`, `PROJ`). The harness scripts detect issue references dynamically using the pattern `[A-Z]+-[0-9]+`, so any team key works automatically.
 
 ## 3. Configure Workflow States
 

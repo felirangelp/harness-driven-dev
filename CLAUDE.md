@@ -20,6 +20,8 @@ The agent has 4 skills that connect with the harness:
 | `/close-issue DEMO-X` | ALWAYS to finish work. Runs 3 gates (tests + CI + criteria), posts evidence, moves to Done. |
 | `/status` | Check project dashboard: issues, branch, CI status. |
 
+> **Note**: `DEMO-X` is used as an example. Replace with your actual Linear team key prefix (e.g., `HAR-5`, `EXP-1`). The team key is set when you create your team in Linear.
+
 ## Harness Rules
 
 1. **No code without issue**: Before touching code, run `/start-issue`.

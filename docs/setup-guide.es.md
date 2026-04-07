@@ -4,6 +4,8 @@
 
 Guía paso a paso para replicar Harness-Driven Development en tu propio proyecto.
 
+> **Nota**: `DEMO` se usa como ejemplo de clave de equipo en toda esta guía. Reemplaza con la clave real de tu equipo en Linear (ej., `HAR`, `EXP`, `PROJ`). El prefijo se define al crear tu equipo en Linear y determina los IDs de tus issues (ej., `HAR-1`, `EXP-1`).
+
 ## Flujo de Setup
 
 ```mermaid

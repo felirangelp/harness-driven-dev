@@ -20,7 +20,7 @@ El team es el contenedor de todos tus issues. La clave del team se convierte en 
    - **Description**: opcional
 4. Click en **Create team**
 
-> **Importante**: La clave del team (`DEMO`) debe coincidir con lo que esperan los scripts del harness. Si usas una clave diferente, actualiza `scripts/linear_client.py` línea 131 donde dice `team_key="DEMO"`.
+> **Importante**: La clave del team determina el prefijo de tus issues. En esta guía se usa `DEMO` como ejemplo — tu clave puede ser cualquiera (ej., `HAR`, `EXP`, `PROJ`). Los scripts del harness detectan referencias a issues dinámicamente usando el patrón `[A-Z]+-[0-9]+`, así que cualquier clave funciona automáticamente.
 
 ## 3. Configurar los Estados del Workflow
 

@@ -13,7 +13,7 @@ repos:
   - repo: local
     hooks:
       - id: check-issue-ref
-        name: Check issue reference (Refs DEMO-XXX)
+        name: Check issue reference (Refs <TEAM_KEY>-XXX)
         entry: bash scripts/check_issue_ref.sh
         language: script
         stages: [commit-msg]

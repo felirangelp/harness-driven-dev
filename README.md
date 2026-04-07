@@ -35,6 +35,8 @@ The agent doesn't just write code — it **self-enforces** the rules your team a
 
 ## How It Works
 
+> **Note**: `DEMO-X` is used as an example issue prefix throughout this document. Replace with your actual Linear team key (e.g., `HAR-1`, `EXP-1`). The prefix is determined by the team key you choose when creating your team in Linear.
+
 ```
 YOU (3 commands):                    THE SYSTEM (15+ automated actions):
 ─────────────────                    ────────────────────────────────────

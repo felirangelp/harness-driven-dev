@@ -4,6 +4,8 @@
 
 Step-by-step guide to replicate Harness-Driven Development in your own project.
 
+> **Note**: `DEMO` is used as an example team key throughout this guide. Replace with your actual Linear team key (e.g., `HAR`, `EXP`, `PROJ`). The prefix is set when you create your team in Linear and determines your issue IDs (e.g., `HAR-1`, `EXP-1`).
+
 ## Setup Flow Overview
 
 ```mermaid

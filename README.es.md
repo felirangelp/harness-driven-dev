@@ -35,6 +35,8 @@ El agente no solo escribe código — **hace cumplir automáticamente las reglas
 
 ## Cómo Funciona
 
+> **Nota**: `DEMO-X` se usa como ejemplo de prefijo de issue en todo este documento. Reemplaza con la clave de tu equipo en Linear (ej., `HAR-1`, `EXP-1`). El prefijo lo determina la clave del team que eliges al crear tu equipo en Linear.
+
 ```
 TÚ (3 comandos):                    EL SISTEMA (15+ acciones automáticas):
 ─────────────────                    ──────────────────────────────────────

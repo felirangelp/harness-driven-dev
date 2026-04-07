@@ -2,9 +2,13 @@
 #
 # check_issue_ref.sh — Git commit-msg hook.
 #
-# Ensures every commit message contains "Refs DEMO-XXX"
+# Ensures every commit message contains "Refs <TEAM_KEY>-XXX"
+# (e.g., "Refs DEMO-1", "Refs HAR-5", "Refs EXP-1")
 # and does NOT contain "Closes", "Fixes", or "Resolves"
 # (which would auto-close issues bypassing the harness gates).
+#
+# The team key prefix is detected automatically — any uppercase
+# prefix matching [A-Z]+-[0-9]+ is accepted.
 #
 # Usage (as commit-msg hook):
 #   bash scripts/check_issue_ref.sh "$1"
@@ -37,7 +41,8 @@ COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
 if ! echo "$COMMIT_MSG" | grep -qiE 'Refs [A-Z]+-[0-9]+'; then
     echo ""
-    echo -e "${RED}BLOCKED: Commit message must contain 'Refs DEMO-XXX'${NC}"
+    TEAM_KEY="${LINEAR_TEAM_KEY:-DEMO}"
+    echo -e "${RED}BLOCKED: Commit message must contain 'Refs ${TEAM_KEY}-XXX'${NC}"
     echo ""
     echo "  Your message:"
     echo "    $COMMIT_MSG"
@@ -45,7 +50,7 @@ if ! echo "$COMMIT_MSG" | grep -qiE 'Refs [A-Z]+-[0-9]+'; then
     echo -e "${YELLOW}  Fix: Add a reference to the Linear issue, e.g.:${NC}"
     echo "    git commit -m \"Add dark mode toggle"
     echo ""
-    echo "    Refs DEMO-1\""
+    echo "    Refs ${TEAM_KEY}-1\""
     echo ""
     exit 1
 fi
