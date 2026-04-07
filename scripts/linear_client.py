@@ -18,20 +18,32 @@ import urllib.request
 API_URL = "https://api.linear.app/graphql"
 
 
-def _get_api_key():
-    """Load API key from environment or .env file."""
-    key = os.environ.get("LINEAR_API_KEY")
-    if key:
-        return key
-    # Try loading from .env
+def _load_env():
+    """Load all variables from .env file (project .env takes priority)."""
     env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+    env_vars = {}
     if os.path.exists(env_path):
         with open(env_path) as f:
             for line in f:
                 line = line.strip()
-                if line.startswith("LINEAR_API_KEY=") and not line.startswith("#"):
-                    return line.split("=", 1)[1].strip()
-    return None
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    env_vars[k.strip()] = v.strip()
+    return env_vars
+
+
+def _get_api_key():
+    """Load API key from .env file first, then environment."""
+    # Project .env takes priority over shell environment
+    env_vars = _load_env()
+    key = env_vars.get("LINEAR_API_KEY")
+    if key:
+        # Also load team key if present
+        team_key = env_vars.get("LINEAR_TEAM_KEY")
+        if team_key and "LINEAR_TEAM_KEY" not in os.environ:
+            os.environ["LINEAR_TEAM_KEY"] = team_key
+        return key
+    return os.environ.get("LINEAR_API_KEY")
 
 
 def _query(query, variables=None):
@@ -63,21 +75,48 @@ def _query(query, variables=None):
 
 
 def get_issue(issue_id):
-    """Get issue by identifier (e.g., 'DEMO-1'). Returns dict or None."""
+    """Get issue by identifier (e.g., 'HAR-1'). Returns dict or None."""
     result = _query("""
         query($id: String!) {
-            issueSearch(query: $id, first: 1) {
-                nodes {
-                    id identifier title description
-                    state { name }
-                    priority
-                    labels { nodes { name } }
-                }
+            issueVcsByIdentifier: issue(id: $id) {
+                id identifier title description
+                state { name }
+                priority
+                labels { nodes { name } }
             }
         }
     """, {"id": issue_id})
-    nodes = result.get("data", {}).get("issueSearch", {}).get("nodes", [])
-    return nodes[0] if nodes else None
+    # Try direct lookup first
+    issue = result.get("data", {}).get("issueVcsByIdentifier")
+    if issue:
+        return issue
+
+    # Fallback: search by filtering team issues
+    parts = issue_id.split("-")
+    if len(parts) == 2:
+        team_key = parts[0]
+        result = _query("""
+            query($teamKey: String!) {
+                teams(filter: { key: { eq: $teamKey } }) {
+                    nodes {
+                        issues(first: 100) {
+                            nodes {
+                                id identifier title description
+                                state { name }
+                                priority
+                                labels { nodes { name } }
+                            }
+                        }
+                    }
+                }
+            }
+        """, {"teamKey": team_key})
+        teams = result.get("data", {}).get("teams", {}).get("nodes", [])
+        if teams:
+            for iss in teams[0].get("issues", {}).get("nodes", []):
+                if iss["identifier"] == issue_id:
+                    return iss
+    return None
 
 
 def update_issue_state(issue_id, state_name):
@@ -129,20 +168,29 @@ def add_comment(issue_id, body):
     return True
 
 
-def list_issues(team_key="DEMO", state=None):
+def list_issues(team_key=None, state=None):
     """List issues, optionally filtered by state."""
-    query_filter = f"team:{team_key}"
-    if state:
-        query_filter += f" state:\"{state}\""
+    if team_key is None:
+        team_key = os.environ.get("LINEAR_TEAM_KEY", "DEMO")
 
     result = _query("""
-        query($filter: String!) {
-            issueSearch(query: $filter, first: 50) {
-                nodes { identifier title state { name } priority }
+        query($teamKey: String!) {
+            teams(filter: { key: { eq: $teamKey } }) {
+                nodes {
+                    issues(first: 50, orderBy: createdAt) {
+                        nodes { identifier title state { name } priority }
+                    }
+                }
             }
         }
-    """, {"filter": query_filter})
-    return result.get("data", {}).get("issueSearch", {}).get("nodes", [])
+    """, {"teamKey": team_key})
+    teams = result.get("data", {}).get("teams", {}).get("nodes", [])
+    if not teams:
+        return []
+    issues = teams[0].get("issues", {}).get("nodes", [])
+    if state:
+        issues = [i for i in issues if i.get("state", {}).get("name") == state]
+    return issues
 
 
 def _get_team_id(team_key="DEMO"):
@@ -210,6 +258,9 @@ def _print_issue(issue):
 
 
 def main():
+    # Load .env before any command
+    _get_api_key()
+
     if len(sys.argv) < 2:
         print(__doc__.strip())
         sys.exit(1)
