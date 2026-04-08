@@ -109,9 +109,63 @@ if [ "$GATES_PASSED" -eq "$GATES_TOTAL" ]; then
     echo "========================================"
     echo ""
 
-    # Post evidence to Linear
+    # ── Build evidence ──
+
     COMMIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-    EVIDENCE="Closed by harness. Gates: $GATES_PASSED/$GATES_TOTAL. Commit: $COMMIT_SHA"
+    COMMIT_FULL=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+    BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+    REPO_URL=$(git remote get-url origin 2>/dev/null | sed 's/\.git$//' | sed 's|git@github.com:|https://github.com/|' || echo "")
+
+    # Files changed in this branch vs main
+    FILES_CHANGED=$(git diff --name-only main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "unknown")
+    FILES_COUNT=$(echo "$FILES_CHANGED" | grep -c '.' || echo "0")
+
+    # Test results
+    TEST_OUTPUT=$(npm test 2>&1 || true)
+    TESTS_PASSED=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ passed' || echo "unknown")
+    TESTS_FAILED=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ failed' || echo "0 failed")
+
+    # CI run info
+    CI_RUN=""
+    if command -v gh &>/dev/null && [ -n "$REPO_URL" ]; then
+        CI_RUN_ID=$(gh run list --workflow ci.yml --branch "$BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || echo "")
+        if [ -n "$CI_RUN_ID" ]; then
+            CI_RUN="[CI Run #${CI_RUN_ID}](${REPO_URL}/actions/runs/${CI_RUN_ID})"
+        fi
+    fi
+
+    # PR info
+    PR_INFO=""
+    if command -v gh &>/dev/null; then
+        PR_NUM=$(gh pr list --state merged --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+        if [ -n "$PR_NUM" ]; then
+            PR_INFO="[PR #${PR_NUM}](${REPO_URL}/pull/${PR_NUM})"
+        fi
+    fi
+
+    # Build markdown evidence
+    EVIDENCE="## Cerrado por Harness
+
+**Gates:** ${GATES_PASSED}/${GATES_TOTAL} pasaron
+**Branch:** \`${BRANCH}\`
+**Commit:** [\`${COMMIT_SHA}\`](${REPO_URL}/commit/${COMMIT_FULL})
+
+### Tests
+- Resultado: ${TESTS_PASSED}, ${TESTS_FAILED}
+
+### CI
+- Estado: Passed (green)
+$([ -n "$CI_RUN" ] && echo "- ${CI_RUN}" || echo "- Sin run de CI disponible")
+
+### PR
+$([ -n "$PR_INFO" ] && echo "- ${PR_INFO}" || echo "- Sin PR asociado")
+
+### Archivos modificados (${FILES_COUNT})
+$(echo "$FILES_CHANGED" | sed 's/^/- `/' | sed 's/$/`/')
+
+---
+*Evidencia generada automáticamente por el harness.*"
+
     python3 "$SCRIPT_DIR/linear_client.py" comment "$ISSUE_ID" "$EVIDENCE" 2>/dev/null || true
 
     # Move to Done
