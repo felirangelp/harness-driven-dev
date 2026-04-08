@@ -359,7 +359,19 @@
 <section>
   <h2 data-en="4 Commands, 15+ Actions" data-es="4 Comandos, 15+ Acciones">4 Commands, 15+ Actions</h2>
 
-  <!-- Flow 1 -->
+  <!-- Flow 1: create-issue -->
+  <div class="diagram-flow">
+    <div class="d-node d-node-accent">
+      <strong>/create-issue</strong>
+      <div class="d-label" data-en="Add dark mode" data-es="Agregar dark mode">Add dark mode</div>
+    </div>
+    <span class="d-arrow">&rarr;</span>
+    <div class="d-node"><span data-en="Criteria" data-es="Criterios">Criteria</span></div>
+    <span class="d-arrow">&rarr;</span>
+    <div class="d-node d-node-purple"><span>Linear</span></div>
+  </div>
+
+  <!-- Flow 2: start-issue -->
   <div class="diagram-flow">
     <div class="d-node d-node-accent">
       <strong>/start-issue</strong>
@@ -373,23 +385,20 @@
     <div class="d-node d-node-green"><span data-en="In Progress" data-es="In Progress">In Progress</span></div>
   </div>
 
-  <!-- Flow 2 -->
+  <!-- Flow 3: implement -->
   <div class="diagram-flow">
     <div class="d-node d-node-accent">
       <strong data-en="&quot;implement&quot;" data-es="&quot;implementa&quot;">"implement"</strong>
-      <div class="d-label">dark mode</div>
     </div>
     <span class="d-arrow">&rarr;</span>
-    <div class="d-node"><span data-en="Write code" data-es="Escribe c&oacute;digo">Write code</span></div>
+    <div class="d-node"><span data-en="Code" data-es="C&oacute;digo">Code</span></div>
     <span class="d-arrow">&rarr;</span>
-    <div class="d-node"><span data-en="Run tests" data-es="Corre tests">Run tests</span></div>
-    <span class="d-arrow">&rarr;</span>
-    <div class="d-node"><span data-en="Validate" data-es="Valida">Validate</span></div>
+    <div class="d-node"><span>Tests</span></div>
     <span class="d-arrow">&rarr;</span>
     <div class="d-node d-node-green">Push + PR</div>
   </div>
 
-  <!-- Flow 3 -->
+  <!-- Flow 4: close-issue -->
   <div class="diagram-flow">
     <div class="d-node d-node-accent">
       <strong>/close-issue</strong>
