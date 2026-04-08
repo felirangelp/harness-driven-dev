@@ -132,6 +132,58 @@ test("Column counters update on add/move/delete", function () {
   dom.window.close();
 });
 
+// ── Test 6: Clear completed removes only done tasks ──
+
+test("clearCompleted removes only done tasks", function () {
+  var dom = freshBoard();
+  var doc = dom.window.document;
+  var TB = dom.window.TaskBoard;
+
+  TB.addTask("Stay in todo");
+  TB.addTask("Stay in progress");
+  TB.addTask("Complete me");
+  TB.addTask("Complete me too");
+
+  var tasks = TB.getTasks();
+  TB.moveTask(tasks[1].id, "in-progress");
+  TB.moveTask(tasks[2].id, "done");
+  TB.moveTask(tasks[3].id, "done");
+
+  assert(TB.getTasks().length === 4, "Should have 4 tasks before clear");
+
+  TB.clearCompleted();
+
+  var remaining = TB.getTasks();
+  assert(remaining.length === 2, "Expected 2 tasks after clear, got " + remaining.length);
+  assert(remaining[0].status === "todo", "First remaining should be todo");
+  assert(remaining[1].status === "in-progress", "Second remaining should be in-progress");
+
+  assert(doc.getElementById("count-done").textContent === "0", "Done count should be 0");
+  assert(doc.getElementById("count-todo").textContent === "1", "Todo count should be 1");
+  assert(doc.getElementById("count-in-progress").textContent === "1", "In-progress count should be 1");
+  dom.window.close();
+});
+
+// ── Test 7: Clear completed button visibility ──
+
+test("Clear completed button hidden when no done tasks", function () {
+  var dom = freshBoard();
+  var doc = dom.window.document;
+  var TB = dom.window.TaskBoard;
+  var btn = doc.getElementById("clear-completed-btn");
+
+  assert(btn.hidden === true, "Button should be hidden initially");
+
+  TB.addTask("Task A");
+  var id = TB.getTasks()[0].id;
+  TB.moveTask(id, "done");
+  assert(btn.hidden === false, "Button should be visible when done tasks exist");
+
+  TB.clearCompleted();
+  assert(btn.hidden === true, "Button should be hidden after clearing");
+  dom.window.close();
+});
+
 // ── Results ──
 
 console.log("\n" + "=".repeat(40));
