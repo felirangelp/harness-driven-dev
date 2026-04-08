@@ -138,6 +138,33 @@
     }
   });
 
+  // ── Theme Toggle ──
+
+  function loadTheme() {
+    return localStorage.getItem("hdd-theme") || "dark";
+  }
+
+  function applyTheme(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    var btn = document.getElementById("theme-toggle-btn");
+    if (btn) {
+      btn.textContent = theme === "dark" ? "Light" : "Dark";
+    }
+    localStorage.setItem("hdd-theme", theme);
+  }
+
+  function toggleTheme() {
+    var current = loadTheme();
+    applyTheme(current === "dark" ? "light" : "dark");
+  }
+
+  document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
+  applyTheme(loadTheme());
+
   // ── Expose for testing ──
 
   if (typeof window !== "undefined") {
