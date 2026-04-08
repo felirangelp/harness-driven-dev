@@ -15,5 +15,5 @@ repos:
       - id: check-issue-ref
         name: Check issue reference (Refs <TEAM_KEY>-XXX)
         entry: bash scripts/check_issue_ref.sh
-        language: script
+        language: system
         stages: [commit-msg]
