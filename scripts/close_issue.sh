@@ -115,10 +115,17 @@ if [ "$GATES_PASSED" -eq "$GATES_TOTAL" ]; then
     COMMIT_FULL=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
     BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
     REPO_URL=$(git remote get-url origin 2>/dev/null | sed 's/\.git$//' | sed 's|git@github.com:|https://github.com/|' || echo "")
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    COMMIT_AUTHOR=$(git log -1 --format='%an <%ae>' 2>/dev/null || echo "unknown")
+    COMMIT_DATE=$(git log -1 --format='%ci' 2>/dev/null || echo "unknown")
+    COMMIT_MSG=$(git log -1 --format='%s' 2>/dev/null || echo "unknown")
 
-    # Files changed in this branch vs main
-    FILES_CHANGED=$(git diff --name-only main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "unknown")
-    FILES_COUNT=$(echo "$FILES_CHANGED" | grep -c '.' || echo "0")
+    # Diff stats
+    DIFF_STAT=$(git diff --stat main...HEAD 2>/dev/null || git diff --stat HEAD~1 2>/dev/null || echo "")
+
+    # Files changed with status (A=added, M=modified, D=deleted)
+    FILES_CHANGED=$(git diff --name-status main...HEAD 2>/dev/null || git diff --name-status HEAD~1 2>/dev/null || echo "")
+    FILES_COUNT=$(echo "$FILES_CHANGED" | grep -c '.' 2>/dev/null || echo "0")
 
     # Test results
     TEST_OUTPUT=$(npm test 2>&1 || true)
@@ -126,42 +133,81 @@ if [ "$GATES_PASSED" -eq "$GATES_TOTAL" ]; then
     TESTS_FAILED=$(echo "$TEST_OUTPUT" | grep -oE '[0-9]+ failed' || echo "0 failed")
 
     # CI run info
-    CI_RUN=""
+    CI_STATUS_TEXT="unknown"
+    CI_RUN_LINK=""
     if command -v gh &>/dev/null && [ -n "$REPO_URL" ]; then
-        CI_RUN_ID=$(gh run list --workflow ci.yml --branch "$BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || echo "")
+        CI_RUN_JSON=$(gh run list --workflow ci.yml --branch "$BRANCH" --limit 1 --json databaseId,conclusion 2>/dev/null || echo "[]")
+        CI_RUN_ID=$(echo "$CI_RUN_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['databaseId'] if d else '')" 2>/dev/null || echo "")
+        CI_STATUS_TEXT=$(echo "$CI_RUN_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0].get('conclusion','unknown') if d else 'unknown')" 2>/dev/null || echo "unknown")
         if [ -n "$CI_RUN_ID" ]; then
-            CI_RUN="[CI Run #${CI_RUN_ID}](${REPO_URL}/actions/runs/${CI_RUN_ID})"
+            CI_RUN_LINK="[CI Run #${CI_RUN_ID}](${REPO_URL}/actions/runs/${CI_RUN_ID})"
         fi
     fi
 
     # PR info
-    PR_INFO=""
+    PR_LINK=""
     if command -v gh &>/dev/null; then
-        PR_NUM=$(gh pr list --state merged --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
-        if [ -n "$PR_NUM" ]; then
-            PR_INFO="[PR #${PR_NUM}](${REPO_URL}/pull/${PR_NUM})"
+        PR_JSON=$(gh pr list --state merged --head "$BRANCH" --json number,title --jq '.[0]' 2>/dev/null || echo "")
+        if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "null" ]; then
+            PR_NUM=$(echo "$PR_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin).get('number',''))" 2>/dev/null || echo "")
+            PR_TITLE=$(echo "$PR_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin).get('title',''))" 2>/dev/null || echo "")
+            if [ -n "$PR_NUM" ]; then
+                PR_LINK="[PR #${PR_NUM}: ${PR_TITLE}](${REPO_URL}/pull/${PR_NUM})"
+            fi
         fi
     fi
 
+    # Acceptance criteria count
+    ISSUE_FULL=$(python3 "$SCRIPT_DIR/linear_client.py" get "$ISSUE_ID" --full 2>/dev/null || echo "")
+    AC_CHECKED=$(echo "$ISSUE_FULL" | grep -c '\- \[x\]' || true)
+    AC_TOTAL=$((AC_CHECKED + $(echo "$ISSUE_FULL" | grep -c '\- \[ \]' || true)))
+
     # Build markdown evidence
-    EVIDENCE="## Cerrado por Harness
+    EVIDENCE="## Evidencia de cierre — ${ISSUE_ID}
 
-**Gates:** ${GATES_PASSED}/${GATES_TOTAL} pasaron
-**Branch:** \`${BRANCH}\`
-**Commit:** [\`${COMMIT_SHA}\`](${REPO_URL}/commit/${COMMIT_FULL})
+### 1. Resolución
 
-### Tests
-- Resultado: ${TESTS_PASSED}, ${TESTS_FAILED}
+- **Status**: PASS
+- **Fecha**: ${TIMESTAMP}
+- **Verificado por**: Harness enforcement (${GATES_PASSED}/${GATES_TOTAL} gates)
 
-### CI
-- Estado: Passed (green)
-$([ -n "$CI_RUN" ] && echo "- ${CI_RUN}" || echo "- Sin run de CI disponible")
+### 2. Cambios implementados
 
-### PR
-$([ -n "$PR_INFO" ] && echo "- ${PR_INFO}" || echo "- Sin PR asociado")
+- **Commit**: \`${COMMIT_SHA}\`
+- **Autor**: ${COMMIT_AUTHOR}
+- **Fecha commit**: ${COMMIT_DATE}
+- **Mensaje**: ${COMMIT_MSG}
+$([ -n "$PR_LINK" ] && echo "- **PR**: ${PR_LINK}")
 
-### Archivos modificados (${FILES_COUNT})
-$(echo "$FILES_CHANGED" | sed 's/^/- `/' | sed 's/$/`/')
+**Diff stats**
+
+\`\`\`
+${DIFF_STAT}
+\`\`\`
+
+**Archivos modificados (${FILES_COUNT})**
+
+\`\`\`
+${FILES_CHANGED}
+\`\`\`
+
+### 3. Verificación — Tests
+
+- **Resultado**: ${TESTS_PASSED}, ${TESTS_FAILED}
+
+### 4. Quality Gates
+
+- **Gate 1 — Tests**: PASS (${TESTS_PASSED})
+- **Gate 2 — CI/CD**: ${CI_STATUS_TEXT}$([ -n "$CI_RUN_LINK" ] && echo " — ${CI_RUN_LINK}")
+- **Gate 3 — Acceptance Criteria**: PASS (${AC_CHECKED}/${AC_TOTAL} checked)
+
+### 5. Audit Trail
+
+- **Issue**: ${ISSUE_ID}
+- **Action**: Closed with automated evidence
+- **Timestamp**: ${TIMESTAMP}
+- **Tool**: scripts/close_issue.sh
+- **Commit SHA**: \`${COMMIT_SHA}\`
 
 ---
 *Evidencia generada automáticamente por el harness.*"
