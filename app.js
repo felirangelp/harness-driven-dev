@@ -100,11 +100,6 @@
         .forEach(function (t) { list.appendChild(createCard(t)); });
     });
     updateCounts();
-    var doneCount = tasks.filter(function (t) { return t.status === "done"; }).length;
-    var clearBtn = document.getElementById("clear-completed-btn");
-    if (clearBtn) {
-      clearBtn.hidden = doneCount === 0;
-    }
   }
 
   // ── Actions ──
@@ -137,12 +132,6 @@
     render();
   }
 
-  function clearCompleted() {
-    tasks = tasks.filter(function (t) { return t.status !== "done"; });
-    saveTasks(tasks);
-    render();
-  }
-
   // ── Event listeners ──
 
   document.getElementById("add-task-btn").addEventListener("click", function () {
@@ -151,8 +140,6 @@
     input.value = "";
     input.focus();
   });
-
-  document.getElementById("clear-completed-btn").addEventListener("click", clearCompleted);
 
   document.getElementById("new-task-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
@@ -225,7 +212,6 @@
       addTask: addTask,
       moveTask: moveTask,
       deleteTask: deleteTask,
-      clearCompleted: clearCompleted,
       getTasks: function () { return tasks.slice(); },
       reset: function () {
         tasks = [];
