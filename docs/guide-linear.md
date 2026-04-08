@@ -252,23 +252,29 @@ source .venv/bin/activate
 # Test: list all issues
 python3 scripts/linear_client.py list
 
-# Expected output:
-#   DEMO-1  [Todo]  Add dark mode toggle
-#   DEMO-2  [Todo]  Add task counter per column
-#   DEMO-3  [Todo]  Add drag and drop
+# Expected output (your team key prefix will vary):
+#   HAR-5  [To Do]  Add dark mode toggle
+#   HAR-6  [To Do]  Add task counter per column
+#   HAR-7  [To Do]  Add drag and drop between columns
 
-# Test: get a specific issue
-python3 scripts/linear_client.py get DEMO-1
+# Test: get a specific issue (use your actual issue ID)
+python3 scripts/linear_client.py get HAR-5
 
 # Test: move an issue (then move it back)
-python3 scripts/linear_client.py move DEMO-1 "In Progress"
-python3 scripts/linear_client.py move DEMO-1 "To Do"
+python3 scripts/linear_client.py move HAR-5 "In Progress"
+python3 scripts/linear_client.py move HAR-5 "To Do"
 ```
 
 If you get errors:
-- `LINEAR_API_KEY not set` → Check your `.env` file
-- `Issue not found` → Verify the team key matches (`DEMO`)
-- `HTTP 401` → Your API key is invalid or expired, create a new one
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `LINEAR_API_KEY not set` | `.env` file missing or empty | Check your `.env` file has the key |
+| `Issue not found` | Wrong team key | Verify `LINEAR_TEAM_KEY` in `.env` matches your team |
+| `HTTP 401` | API key invalid or from wrong workspace | Create a new key from the correct workspace |
+| `State 'Todo' not found` | Wrong state name | Use `"To Do"` (with space), not `"Todo"` |
+| `Team 'DEMO' not found` | Default team key doesn't match | Set `LINEAR_TEAM_KEY` in `.env` to your team key |
+| Shows issues from wrong workspace | Shell env overrides `.env` | The script prioritizes `.env` over shell, but verify with `echo $LINEAR_API_KEY` |
 
 ## 10. Keyword Policy
 
@@ -276,9 +282,11 @@ The Linear-GitHub integration responds to keywords in commits and PRs:
 
 | Keyword | Use? | Why |
 |---------|------|-----|
-| `Refs DEMO-XXX` | **Always** | Links without closing |
-| `Closes DEMO-XXX` | **Never** | Auto-closes, bypasses harness gates |
-| `Fixes DEMO-XXX` | **Never** | Same as Closes |
-| `Resolves DEMO-XXX` | **Never** | Same as Closes |
+| `Refs HAR-XXX` | **Always** | Links commit to issue without closing |
+| `Closes HAR-XXX` | **Never** | Auto-closes issue, bypasses harness gates |
+| `Fixes HAR-XXX` | **Never** | Same as Closes |
+| `Resolves HAR-XXX` | **Never** | Same as Closes |
+
+> **Note**: Replace `HAR` with your actual team key prefix. The `check_issue_ref.sh` hook accepts any team key matching the pattern `[A-Z]+-[0-9]+`.
 
 The `check_issue_ref.sh` hook enforces this automatically on every commit.

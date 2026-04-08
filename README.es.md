@@ -173,7 +173,7 @@ Problema con MCP:
   - No preserva markdown → descripciones rotas
   - No tiene retry → fallas silenciosas
 
-Solución: Cliente GraphQL propio (~170 líneas)
+Solución: Cliente GraphQL propio (~380 líneas)
   - Control total sobre payload
   - Routing automático a proyectos
   - Retry + error handling

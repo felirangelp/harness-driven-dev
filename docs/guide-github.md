@@ -262,3 +262,9 @@ bash scripts/check_issue_ref.sh /tmp/test.txt
 **Linear Bridge doesn't create bugs**
 - Verify `LINEAR_API_KEY` is set as a repository secret
 - The bridge only runs when CI actually fails
+
+**`/close-issue` Gate 2 shows "FAIL (last run: skipped)" even though CI passed**
+- This happens when the Linear Bridge workflow (which runs after CI) is picked up instead of the actual CI workflow
+- The `close_issue.sh` script filters by `--workflow ci.yml` to avoid this
+- If you still see the issue, wait a few seconds and try again — the CI run may still be in progress
+- Verify manually: `gh run list --workflow ci.yml --branch main --limit 1`

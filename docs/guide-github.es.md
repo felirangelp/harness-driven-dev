@@ -262,3 +262,9 @@ bash scripts/check_issue_ref.sh /tmp/test.txt
 **Linear Bridge no crea bugs**
 - Verifica que `LINEAR_API_KEY` esté como secret del repositorio
 - El bridge solo corre cuando CI realmente falla
+
+**`/close-issue` Gate 2 muestra "FAIL (last run: skipped)" aunque CI pasó**
+- Esto pasa cuando el script toma el workflow Linear Bridge (skipped) en vez del workflow CI real
+- El script `close_issue.sh` filtra por `--workflow ci.yml` para evitar esto
+- Si aún lo ves, espera unos segundos e intenta de nuevo — el CI run puede estar en progreso
+- Verifica manualmente: `gh run list --workflow ci.yml --branch main --limit 1`

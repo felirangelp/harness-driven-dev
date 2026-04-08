@@ -99,20 +99,20 @@ The Linear MCP (Model Context Protocol) has limitations:
 - Doesn't preserve markdown formatting → broken descriptions
 - No retry mechanism → silent failures
 
-The custom client (`linear_client.py`, ~170 lines) gives full control over the payload, automatic project routing, and proper error handling.
+The custom client (`linear_client.py`, ~380 lines) gives full control over the payload, automatic project routing, multi-workspace support, and proper error handling.
 
 ### How many lines of code is the entire harness?
 
 ```
-linear_client.py      ~170 lines
-close_issue.sh         ~95 lines
-check_issue_ref.sh     ~50 lines
-ci_failure_bridge.py  ~100 lines
+linear_client.py      ~380 lines
+ci_failure_bridge.py  ~135 lines
+close_issue.sh        ~120 lines
+check_issue_ref.sh     ~70 lines
 ──────────────────────────────
-Total                 ~415 lines
+Total                 ~710 lines
 ```
 
-Plus ~50 lines across YAML configs. The entire enforcement system is under 500 lines.
+Plus ~50 lines across YAML configs. The entire enforcement system is under 800 lines.
 
 ### Can I add more best practices?
 
