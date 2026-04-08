@@ -388,7 +388,7 @@
   <!-- Flow 3: implement -->
   <div class="diagram-flow">
     <div class="d-node d-node-accent">
-      <strong data-en="&quot;implement&quot;" data-es="&quot;implementa&quot;">"implement"</strong>
+      <strong data-en="code + commit" data-es="code + commit">code + commit</strong>
     </div>
     <span class="d-arrow">&rarr;</span>
     <div class="d-node"><span data-en="Code" data-es="C&oacute;digo">Code</span></div>
@@ -424,7 +424,7 @@
   <div class="layer-box" style="border-left:4px solid #d29922;">
     <span class="layer-num yellow">2</span>
     <span class="layer-name">CI</span>
-    <span class="layer-desc" data-en="Tests + gitleaks &mdash; &quot;If it fails, auto-creates bug in Linear&quot;" data-es="Tests + gitleaks &mdash; &quot;Si falla, auto-crea bug en Linear&quot;">Tests + gitleaks &mdash; "If it fails, auto-creates bug in Linear"</span>
+    <span class="layer-desc" data-en="Tests + gitleaks &mdash; &quot;If it fails, the agent detects and fixes it&quot;" data-es="Tests + gitleaks &mdash; &quot;Si falla, el agente lo detecta y corrige&quot;">Tests + gitleaks &mdash; "If it fails, the agent detects and fixes it"</span>
   </div>
   <div class="layer-box" style="border-left:4px solid #58a6ff;">
     <span class="layer-num blue">3</span>
@@ -466,7 +466,7 @@
     <div class="arch-row">
       <div class="arch-box" style="border-color:#d29922; min-width:350px;">
         <strong class="yellow">Harness Scripts</strong>
-        <div class="d-label">linear_client.py &middot; close_issue.sh &middot; check_issue_ref.sh</div>
+        <div class="d-label">linear_client.py &middot; close_issue.sh &middot; check_issue_ref.sh &middot; ci_failure_bridge.py</div>
       </div>
     </div>
     <div class="d-arrow-down" data-en="&darr; activate via" data-es="&darr; se activan via">&darr; activate via</div>
@@ -545,7 +545,7 @@
       <div class="sf-num">4</div>
       <div class="sf-content">
         <span data-en="GitHub Actions runs gitleaks again" data-es="GitHub Actions corre gitleaks de nuevo">GitHub Actions runs gitleaks again</span>
-        <div class="d-label" data-en="Second layer catches it + auto-creates bug in Linear" data-es="La segunda capa lo atrapa + auto-crea bug en Linear">Second layer catches it + auto-creates bug in Linear</div>
+        <div class="d-label" data-en="Second layer catches it if someone bypasses pre-commit" data-es="La segunda capa lo atrapa si alguien salta el pre-commit">Second layer catches it if someone bypasses pre-commit</div>
       </div>
       <div class="sf-result red" data-en="PR BLOCKED" data-es="PR BLOQUEADO">PR BLOCKED</div>
     </div>
@@ -586,7 +586,7 @@
       </div>
       <span class="d-arrow">&rarr;</span>
       <div class="d-node">
-        <span data-en="Post evidence" data-es="Posta evidencia">Post evidence</span>
+        <span data-en="Post evidence" data-es="Publica evidencia">Post evidence</span>
       </div>
       <span class="d-arrow">&rarr;</span>
       <div class="d-node d-node-green">
