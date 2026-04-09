@@ -104,6 +104,21 @@ header h1 {
   background: var(--green-hover);
 }
 
+#clear-completed-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+#clear-completed-btn:hover {
+  color: var(--red);
+  border-color: var(--red);
+}
+
 #theme-toggle-btn {
   padding: 0.4rem 0.75rem;
   border: 1px solid var(--border);

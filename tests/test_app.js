@@ -132,6 +132,46 @@ test("Column counters update on add/move/delete", function () {
   dom.window.close();
 });
 
+// ── Test 6: Clear completed removes only done tasks ──
+
+test("clearCompleted removes only done tasks", function () {
+  var dom = freshBoard();
+  var doc = dom.window.document;
+  var TB = dom.window.TaskBoard;
+
+  TB.addTask("Stay in todo");
+  TB.addTask("Move to progress");
+  TB.addTask("Complete me");
+
+  var tasks = TB.getTasks();
+  TB.moveTask(tasks[1].id, "in-progress");
+  TB.moveTask(tasks[2].id, "done");
+
+  TB.clearCompleted();
+
+  var remaining = TB.getTasks();
+  assert(remaining.length === 2, "Expected 2 tasks after clear, got " + remaining.length);
+  assert(remaining[0].status === "todo", "First task should still be in todo");
+  assert(remaining[1].status === "in-progress", "Second task should still be in-progress");
+  assert(doc.getElementById("count-done").textContent === "0", "Done count should be 0");
+  dom.window.close();
+});
+
+// ── Test 7: Clear completed with no done tasks does nothing ──
+
+test("clearCompleted with no done tasks does nothing", function () {
+  var dom = freshBoard();
+  var TB = dom.window.TaskBoard;
+
+  TB.addTask("A todo task");
+  TB.clearCompleted();
+
+  var remaining = TB.getTasks();
+  assert(remaining.length === 1, "Expected 1 task, got " + remaining.length);
+  assert(remaining[0].status === "todo", "Task should still be in todo");
+  dom.window.close();
+});
+
 // ── Results ──
 
 console.log("\n" + "=".repeat(40));
