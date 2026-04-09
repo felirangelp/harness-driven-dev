@@ -137,9 +137,22 @@
   }
 
   function deleteTask(id) {
-    tasks = tasks.filter(function (t) { return t.id !== id; });
+    tasks = tasks.filter(function (t) { return t.id === id; });
     saveTasks(tasks);
     render();
+  }
+
+  function filterTasks(query) {
+    var searchInput = document.getElementById("search-input");
+    var term = (query || searchInput.value || "").toLowerCase();
+    STATUSES.forEach(function (status) {
+      var list = document.getElementById("list-" + status);
+      var cards = list.querySelectorAll(".task-card");
+      cards.forEach(function (card) {
+        var title = card.querySelector(".task-title").textContent.toLowerCase();
+        card.style.display = title.indexOf(term) !== -1 ? "" : "none";
+      });
+    });
   }
 
   // ── Event listeners ──
@@ -149,6 +162,10 @@
     addTask(input.value);
     input.value = "";
     input.focus();
+  });
+
+  document.getElementById("search-input").addEventListener("input", function () {
+    filterTasks();
   });
 
   document.getElementById("new-task-input").addEventListener("keydown", function (e) {
