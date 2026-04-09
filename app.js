@@ -7,6 +7,16 @@
 
   const STATUSES = ["todo", "in-progress", "done"];
 
+  // ── Linear API ──
+
+  function getLinearConfig() {
+    // API key must be set in .env — never hardcode secrets in source code
+    return {
+      endpoint: "https://api.linear.app/graphql",
+      configured: typeof process !== "undefined" && process.env && process.env.LINEAR_API_KEY
+    };
+  }
+
   // ── State ──
 
   function loadTasks() {
