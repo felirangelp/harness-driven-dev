@@ -205,6 +205,23 @@
   document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
   applyTheme(loadTheme());
 
+  // ── Export ──
+
+  function exportTasks() {
+    var json = JSON.stringify(tasks, null, 2);
+    var blob = new Blob([json], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "tasks_export.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById("export-json-btn").addEventListener("click", exportTasks);
+
   // ── Expose for testing ──
 
   if (typeof window !== "undefined") {
@@ -212,6 +229,7 @@
       addTask: addTask,
       moveTask: moveTask,
       deleteTask: deleteTask,
+      exportTasks: exportTasks,
       getTasks: function () { return tasks.slice(); },
       reset: function () {
         tasks = [];
