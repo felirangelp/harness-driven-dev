@@ -9,12 +9,30 @@
 
   // ── Linear API ──
 
+  const LINEAR_ENDPOINT = "https://api.linear.app/graphql";
+
+  function getLinearApiKey() {
+    // API key is read from the environment — never hardcode secrets in source code
+    return (typeof process !== "undefined" && process.env && process.env.LINEAR_API_KEY) || "";
+  }
+
   function getLinearConfig() {
-    // API key must be set in .env — never hardcode secrets in source code
     return {
-      endpoint: "https://api.linear.app/graphql",
-      configured: typeof process !== "undefined" && process.env && process.env.LINEAR_API_KEY
+      endpoint: LINEAR_ENDPOINT,
+      configured: Boolean(getLinearApiKey())
     };
+  }
+
+  function fetchLinearViewer() {
+    const apiKey = getLinearApiKey();
+    return fetch(LINEAR_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": apiKey
+      },
+      body: JSON.stringify({ query: "{ viewer { id name email } }" })
+    }).then(function (res) { return res.json(); });
   }
 
   // ── State ──
