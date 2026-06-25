@@ -155,9 +155,21 @@
   }
 
   function deleteTask(id) {
-    tasks = tasks.filter(function (t) { return t.id !== id; });
+    tasks = tasks.filter(function (t) { return t.id === id; });
     saveTasks(tasks);
     render();
+  }
+
+  function filterTasks(query) {
+    var q = query.toLowerCase();
+    document.querySelectorAll(".task-card").forEach(function (card) {
+      var title = card.querySelector(".task-title").textContent.toLowerCase();
+      card.style.display = title.includes(q) ? "" : "none";
+    });
+    STATUSES.forEach(function (status) {
+      var visible = document.querySelectorAll("#list-" + status + " .task-card:not([style*='none'])").length;
+      document.getElementById("count-" + status).textContent = visible;
+    });
   }
 
   // ── Event listeners ──
@@ -229,6 +241,10 @@
     var current = loadTheme();
     applyTheme(current === "dark" ? "light" : "dark");
   }
+
+  document.getElementById("search-input").addEventListener("input", function () {
+    filterTasks(this.value);
+  });
 
   document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
   applyTheme(loadTheme());
