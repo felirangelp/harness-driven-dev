@@ -155,7 +155,7 @@
   }
 
   function deleteTask(id) {
-    tasks = tasks.filter(function (t) { return t.id === id; });
+    tasks = tasks.filter(function (t) { return t.id !== id; });
     saveTasks(tasks);
     render();
   }
