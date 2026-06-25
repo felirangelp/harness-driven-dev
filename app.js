@@ -12,7 +12,6 @@
   const LINEAR_ENDPOINT = "https://api.linear.app/graphql";
 
   function getLinearApiKey() {
-    // API key is read from the environment — never hardcode secrets in source code
     return (typeof process !== "undefined" && process.env && process.env.LINEAR_API_KEY) || "";
   }
 
